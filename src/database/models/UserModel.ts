@@ -1,10 +1,32 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import todoSequelize from "../setup/database";
+import { UserAttributes } from "../../interfaces/db-models/UserAttributes";
 
-// Define the Todo model
+interface UserCreationAttributes
+  extends Optional<UserAttributes, "id" | "profileImgUrl"> {}
 
-const UserModel = todoSequelize.define(
-  "User",
+// Define the Todo model class
+class UserModel
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
+  public id!: number;
+
+  public name!: string;
+
+  public email!: string;
+
+  public password!: string;
+
+  public profileImgUrl!: string;
+
+  // Timestamps
+  public readonly createdAt!: Date;
+
+  public readonly updatedAt!: Date;
+} // Define the Todo model
+
+UserModel.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -32,13 +54,8 @@ const UserModel = todoSequelize.define(
       allowNull: true,
     },
   },
-  {
-    tableName: "Users",
-    defaultScope: { attributes: { exclude: ["password"] } },
-    scopes: {
-      allData: { attributes: { exclude: [] } },
-    },
-  }
+
+  { tableName: "Todos", sequelize: todoSequelize }
 );
 
 export default UserModel;

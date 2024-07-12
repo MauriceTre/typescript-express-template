@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-
+console.log(process.env);
 const { DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env;
 
 // Connect to MySQL using Sequelize
