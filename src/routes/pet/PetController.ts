@@ -1,33 +1,53 @@
 // src/controllers/PetController.ts
-import { Request, Response } from 'express';
-import Pet from '../../database/models/Pet';
+import { Controller, Get, Post, Route, Body, Res, TsoaResponse } from 'tsoa';
+import Pet, { PetCreationAttributes } from '../../database/models/Pet';
 
-class PetController {
-  public async createPet(req: Request, res: Response): Promise<void> {
+export interface CreatePetRequest {
+  name: string;
+  species: string;
+  age: number;
+}
+
+interface PetResponse {
+  id: number;
+  name: string;
+  species: string;
+  age: number;
+}
+
+@Route("pets")
+export class PetController extends Controller {
+
+  @Post("/")
+  public async createPet(
+    @Body() body: CreatePetRequest,
+    @Res() badRequest: TsoaResponse<400, { error: string }>
+  ): Promise<PetResponse> {
     try {
-      const pet = await Pet.create(req.body);
-      res.status(201).json(pet);
+      const pet = await Pet.create(body as PetCreationAttributes); // Cast to PetCreationAttributes
+      return pet;
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        return badRequest(400, { error: error.message });
       } else {
-        res.status(400).json({ error: 'An unexpected error occurred.' });
+        return badRequest(400, { error: 'An unexpected error occurred.' });
       }
     }
   }
 
-  public async getPets(req: Request, res: Response): Promise<void> {
+  @Get("/")
+  public async getPets(): Promise<PetResponse[]> {
     try {
       const pets = await Pet.findAll();
-      res.status(200).json(pets);
+      return pets;
     } catch (error) {
+      this.setStatus(500);
       if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
+        throw new Error(error.message);
       } else {
-        res.status(500).json({ error: 'An unexpected error occurred.' });
+        throw new Error('An unexpected error occurred.');
       }
     }
   }
 }
-
-export default PetController;
+export default PetController

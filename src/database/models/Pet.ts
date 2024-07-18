@@ -1,8 +1,17 @@
-// models/Pet.ts
-import { Model, DataTypes } from 'sequelize';
+// src/database/models/Pet.ts
+import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../setup/database'
 
-class Pet extends Model {
+interface PetAttributes {
+  id: number;
+  name: string;
+  species: string;
+  age: number;
+}
+
+export interface PetCreationAttributes extends Optional<PetAttributes, 'id'> {}
+
+class Pet extends Model<PetAttributes, PetCreationAttributes> implements PetAttributes {
   public id!: number;
   public name!: string;
   public species!: string;
